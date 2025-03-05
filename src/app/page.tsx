@@ -8,6 +8,7 @@ import { Resume } from '@/types';
 
 export default function Home() {
   const [extractedContent, setExtractedContent] = useState<Resume>();
+  const [previousVersion, setPreviousVersion] = useState<Resume | null>(null);
   const [messages, setMessages] = useState<
     Array<{ role: 'user' | 'assistant'; content: string }>
   >([]);
@@ -28,6 +29,9 @@ export default function Home() {
     setIsProcessing(true);
 
     try {
+      // Save current version before updating
+      setPreviousVersion(extractedContent);
+
       // Call the revamp API
       const response = await fetch('/api/revamp', {
         method: 'POST',
@@ -97,7 +101,10 @@ export default function Home() {
           </div>
 
           <div className="lg:col-span-2 max-h-svh">
-            <ResumePreview resume={extractedContent} />
+            <ResumePreview
+              resume={extractedContent}
+              previousVersion={previousVersion}
+            />
           </div>
         </div>
       )}

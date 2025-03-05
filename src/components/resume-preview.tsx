@@ -1,155 +1,166 @@
 import { Resume } from '@/types';
-import { Link, Download } from 'lucide-react';
+import { Download, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 interface ResumePreviewProps {
   resume: Resume;
+  previousVersion: Resume | null;
+  hideControls?: boolean;
 }
 
-export function ResumePreview({ resume }: ResumePreviewProps) {
+export function ResumePreview({
+  resume,
+  previousVersion,
+  hideControls = false,
+}: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
+  const [showPreviousVersion, setShowPreviousVersion] = useState(false);
+
+  const displayedResume =
+    showPreviousVersion && previousVersion ? previousVersion : resume;
 
   const handleDownload = async () => {
     if (!resumeRef.current) return;
 
     try {
-      // Create PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const margin = 10; // margin in mm
-      const contentWidth = pageWidth - margin * 2;
+      const canvas = await html2canvas(resumeRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
 
-      // Get all section elements
-      const sections = resumeRef.current.querySelectorAll('> div');
-      let currentY = margin;
-      let isFirstSection = true;
+      const imgData = canvas.toDataURL('image/png');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
 
-      // Process each section
-      for (let i = 0; i < sections.length; i++) {
-        const section = sections[i] as HTMLElement;
+      pdf.addImage(
+        imgData,
+        'PNG',
+        imgX,
+        imgY,
+        imgWidth * ratio,
+        imgHeight * ratio
+      );
 
-        // Create a new page for each section except the first one
-        if (!isFirstSection && currentY > margin) {
-          pdf.addPage();
-          currentY = margin;
-        }
-
-        // Capture section as canvas
-        const canvas = await html2canvas(section, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-
-        const imgData = canvas.toDataURL('image/png');
-        const imgHeight = (canvas.height * contentWidth) / canvas.width;
-
-        // Check if section fits on current page
-        if (currentY + imgHeight > pageHeight - margin) {
-          // If not first section and doesn't fit, add a new page
-          if (!isFirstSection) {
-            pdf.addPage();
-            currentY = margin;
-          }
-        }
-
-        // Add section to PDF
-        pdf.addImage(imgData, 'PNG', margin, currentY, contentWidth, imgHeight);
-
-        // Update Y position for next section
-        currentY += imgHeight + 5; // 5mm spacing between sections
-        isFirstSection = false;
-      }
-
-      pdf.save(`${resume.name.replace(/\s+/g, '_')}_resume.pdf`);
+      pdf.save(`${displayedResume.name.replace(/\s+/g, '_')}_resume.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
   };
 
-  return (
-    <div className="h-full flex flex-col over overflow-y-scroll">
-      <div className="p-4 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex justify-between items-center">
-        <h2 className="font-semibold dark:text-white">Resume Preview</h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDownload}
-          className="flex items-center gap-1"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download PDF</span>
-        </Button>
-      </div>
+  const toggleVersion = () => {
+    setShowPreviousVersion(!showPreviousVersion);
+  };
 
-      <div className="flex-1 overflow-y-auto">
+  return (
+    <div className="h-full flex flex-col overflow-y-scroll">
+      {!hideControls && (
+        <div className="p-4 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex justify-between items-center">
+          <h2 className="font-semibold dark:text-white">
+            {showPreviousVersion ? 'Previous Version' : 'Current Version'}
+          </h2>
+          <div className="flex items-center gap-2">
+            {previousVersion && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleVersion}
+                className="flex items-center gap-1"
+              >
+                <History className="w-4 h-4" />
+                <span>
+                  {showPreviousVersion ? 'Show Current' : 'Show Previous'}
+                </span>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              className="flex items-center gap-1"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download PDF</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={`flex-1 overflow-y-auto ${hideControls ? 'pt-14' : 'p-8'}`}
+      >
         <div
           ref={resumeRef}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-8 space-y-6 max-w-4xl mx-auto"
+          className="bg-white mx-auto max-w-[816px] p-8"
+          style={{ minHeight: '1056px' }}
         >
           {/* Header Section */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold uppercase tracking-wide dark:text-white">
-              {resume.name}
+          <div className="text-center mb-4">
+            <h1 className="text-[28px] font-bold mb-1">
+              {displayedResume.name}
             </h1>
-            <div className="text-sm flex items-center justify-center gap-2 dark:text-gray-300">
-              <span>{resume.location}</span>
-              <span>•</span>
-              <span>{resume.phone}</span>
-              <span>•</span>
-              <span>{resume.email}</span>
-              {resume.linkedin && (
-                <>
-                  <span>•</span>
-                  <a
-                    href={resume.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                  >
-                    <Link className="w-3 h-3" />
-                    LinkedIn
-                  </a>
-                </>
-              )}
+            <div className="flex items-center justify-center text-[13px] leading-none">
+              <div className="flex items-center">
+                {/*<MapPin className="w-3.5 h-3.5 stroke-[1.5]" />*/}
+                <span className="ml-1">{displayedResume.location}</span>
+              </div>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                {/*<Phone className="w-3.5 h-3.5 stroke-[1.5]" />*/}
+                <span className="ml-1">{displayedResume.phone}</span>
+              </div>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                {/*<Mail className="w-3.5 h-3.5 stroke-[1.5]" />*/}
+                <span className="ml-1">{displayedResume.email}</span>
+              </div>
             </div>
           </div>
 
           {/* Professional Experience Section */}
-          <div>
-            <h2 className="text-lg font-bold uppercase border-b border-gray-300 dark:border-gray-600 pb-1 mb-4 dark:text-white">
-              Professional Experience
+          <div className="mb-4">
+            <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+              PROFESSIONAL EXPERIENCE
             </h2>
-            <div className="space-y-6">
-              {resume.experience.map((exp, index) => (
-                <div key={index}>
+            <div className="space-y-4">
+              {displayedResume.experience.map((exp, index) => (
+                <div key={index} className="relative">
                   <div className="flex justify-between items-baseline">
                     <div>
-                      <h3 className="font-bold dark:text-white">{exp.title}</h3>
-                      <div className="text-sm">
-                        <span className="font-bold dark:text-gray-300">
-                          {exp.company}
-                        </span>
-                      </div>
+                      <h3 className="font-bold text-[14px]">{exp.title}</h3>
+                      <div className="text-[14px]">{exp.company}</div>
                     </div>
-                    <div className="text-sm dark:text-gray-400">
+                    <div className="text-[14px]">
                       {exp.startDate} – {exp.endDate}
                     </div>
                   </div>
-                  <ul className="list-disc ml-4 mt-2 text-sm space-y-1 dark:text-gray-300">
-                    {exp.description.split('\n').map((point, idx) => (
-                      <li key={idx}>{point}</li>
-                    ))}
+                  <ul className="mt-0.5 space-y-0.5 text-[14px]">
+                    {exp.description
+                      .split('\n')
+                      .filter((point) => point.trim())
+                      .map((point, idx) => (
+                        <li
+                          key={idx}
+                          className="relative pl-2 before:content-['•'] before:absolute before:left-0 before:top-0"
+                        >
+                          {point.trim().replace(/^[•-]\s*/, '')}
+                        </li>
+                      ))}
                   </ul>
                 </div>
               ))}
@@ -157,27 +168,28 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
           </div>
 
           {/* Projects Section */}
-          {resume.projects.length > 0 && (
-            <div>
-              <h2 className="text-lg font-bold uppercase border-b border-gray-300 dark:border-gray-600 pb-1 mb-4 dark:text-white">
-                Projects
+          {displayedResume.projects.length > 0 && (
+            <div className="mb-4">
+              <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+                PROJECTS
               </h2>
-              <div className="space-y-4">
-                {resume.projects.map((project, index) => (
+              <div className="space-y-3">
+                {displayedResume.projects.map((project, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-baseline">
-                      <h3 className="font-bold dark:text-white">
-                        {project.name}
-                      </h3>
+                      <h3 className="font-bold text-[14px]">{project.name}</h3>
                       {project.date && (
-                        <div className="text-sm dark:text-gray-400">
-                          {project.date}
-                        </div>
+                        <div className="text-[14px]">{project.date}</div>
                       )}
                     </div>
-                    <ul className="list-disc ml-4 mt-1 text-sm dark:text-gray-300">
+                    <ul className="mt-0.5 text-[14px]">
                       {project.description.split('\n').map((point, idx) => (
-                        <li key={idx}>{point}</li>
+                        <li
+                          key={idx}
+                          className="relative pl-2 before:content-['•'] before:absolute before:left-0 before:top-0"
+                        >
+                          {point.trim().replace(/^[•-]\s*/, '')}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -187,23 +199,22 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
           )}
 
           {/* Education Section */}
-          <div>
-            <h2 className="text-lg font-bold uppercase border-b border-gray-300 dark:border-gray-600 pb-1 mb-4 dark:text-white">
-              Education
+          <div className="mb-4">
+            <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+              EDUCATION
             </h2>
-            <div className="space-y-4">
-              {resume.education.map((edu, index) => (
+            <div className="space-y-2">
+              {displayedResume.education.map((edu, index) => (
                 <div key={index}>
                   <div className="flex justify-between items-baseline">
                     <div>
-                      <div className="font-bold dark:text-white">
-                        {edu.school}
-                      </div>
-                      <div className="text-sm dark:text-gray-300">
+                      <div className="font-bold text-[14px]">{edu.school}</div>
+                      <div className="text-[14px]">
                         {edu.degree}
+                        {edu.major && ` in ${edu.major}`}
                       </div>
                     </div>
-                    <div className="text-sm dark:text-gray-400">
+                    <div className="text-[14px]">
                       {edu.startDate} - {edu.endDate}
                     </div>
                   </div>
@@ -214,15 +225,13 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
 
           {/* Skills & Other Section */}
           <div>
-            <h2 className="text-lg font-bold uppercase border-b border-gray-300 dark:border-gray-600 pb-1 mb-4 dark:text-white">
-              Skills & Other
+            <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+              SKILLS & OTHER
             </h2>
-            <div className="space-y-2">
-              {resume.skillCategories?.map((category, index) => (
-                <div key={index} className="text-sm dark:text-gray-300">
-                  <span className="font-bold dark:text-white">
-                    {category.name}:
-                  </span>{' '}
+            <div className="space-y-1">
+              {displayedResume.skillCategories?.map((category, index) => (
+                <div key={index} className="text-[14px]">
+                  <span className="font-bold">{category.name}:</span>{' '}
                   <span>{category.skills.join(', ')}</span>
                 </div>
               ))}

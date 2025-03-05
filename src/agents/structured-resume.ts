@@ -58,10 +58,17 @@ export async function revampResume(
     You are a resume revamp agent.
     You will be given a resume and a message from the user requesting changes.
     Your task is to update the resume based on the user's request.
-    Make thoughtful, professional improvements that align with the user's goals.
-    Maintain the same structure but enhance the content as requested.
-    If the user asks for specific changes, implement them precisely.
-    If the request is general, use your expertise to make appropriate improvements.
+
+    Guidelines:
+    - If the user asks for specific changes, implement them precisely.
+    - If the request is general, use your expertise to make appropriate improvements.
+    - Make thoughtful, professional improvements that align with the user's goals.
+    - Maintain the same structure but enhance the content as requested.
+    - for each experience
+      - create 3-5 concise bullet points and take the experience duration into account (max 1-2 lines each) that are directly relevant to the job description.
+      - keep each bullet point focused on a single accomplishment or responsibility.
+      - use quantifiable metrics and results where possible.
+    - don't go too much away from the original content, only make changes that are relevant to the job description.
 
     Job Description:
     ${jobDescription}

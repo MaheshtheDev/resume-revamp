@@ -71,7 +71,7 @@ function LeftNavBar() {
           <SidebarMenuItem className="hover:bg-transparent">
             <SidebarMenuButton
               tooltip="Resume Revamp"
-              onClick={() => router.push('/create')}
+              onClick={() => router.push('/')}
             >
               <FilePenLineIcon size={36} />
               <h2 className="text-lg font-semibold text-center animate-in">
@@ -82,7 +82,7 @@ function LeftNavBar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu className={cn(!open && 'px-2', "hidden")}>
+        <SidebarMenu className={cn(!open && 'px-2', 'hidden')}>
           {primaryNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton asChild tooltip={item.label}>
