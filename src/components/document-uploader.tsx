@@ -73,10 +73,11 @@ export function DocumentUploader({
       <label
         htmlFor="file-upload"
         className={`
-          flex flex-col items-center justify-center w-full h-32
+          relative flex flex-col items-center justify-center w-full h-32
           border-2 border-dashed rounded-lg
           cursor-pointer
           transition-colors
+          overflow-hidden
           ${
             isProcessing
               ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700'
@@ -84,11 +85,18 @@ export function DocumentUploader({
           }
         `}
       >
-        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-          <Upload className="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" />
+        {isProcessing && (
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="animate-loading-pulse w-1/2 h-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
+          </div>
+        )}
+        <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
+          <Upload
+            className={`w-8 h-8 mb-2 ${isProcessing ? 'text-blue-500 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}
+          />
           <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
             {isProcessing
-              ? 'Processing...'
+              ? 'Processing document...'
               : 'Click to upload or drag and drop'}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">

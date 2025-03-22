@@ -2,8 +2,6 @@ import { Resume } from '@/types';
 import { Download, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRef, useState } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 interface ResumePreviewProps {
   resume: Resume;
@@ -18,6 +16,7 @@ export function ResumePreview({
 }: ResumePreviewProps) {
   const resumeRef = useRef<HTMLDivElement>(null);
   const [showPreviousVersion, setShowPreviousVersion] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const displayedResume =
     showPreviousVersion && previousVersion ? previousVersion : resume;
@@ -26,40 +25,41 @@ export function ResumePreview({
     if (!resumeRef.current) return;
 
     try {
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+      setIsGenerating(true);
+
+      // Get the HTML content of the resume
+      const htmlContent = resumeRef.current.outerHTML;
+
+      // Send to API endpoint
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ html: htmlContent }),
       });
 
-      const canvas = await html2canvas(resumeRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      });
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
+      // Get the PDF blob
+      const pdfBlob = await response.blob();
 
-      pdf.addImage(
-        imgData,
-        'PNG',
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      );
-
-      pdf.save(`${displayedResume.name.replace(/\s+/g, '_')}_resume.pdf`);
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${displayedResume.name.replace(/\s+/g, '_')}_resume.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error generating PDF:', error);
+      // You might want to show an error toast here
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -92,17 +92,18 @@ export function ResumePreview({
               variant="outline"
               size="sm"
               onClick={handleDownload}
+              disabled={isGenerating}
               className="flex items-center gap-1"
             >
               <Download className="w-4 h-4" />
-              <span>Download PDF</span>
+              <span>{isGenerating ? 'Generating...' : 'Download PDF'}</span>
             </Button>
           </div>
         </div>
       )}
 
       <div
-        className={`flex-1 overflow-y-auto ${hideControls ? 'pt-14' : 'p-8'}`}
+        className={`flex-1 overflow-y-auto ${hideControls ? 'pt-10' : 'p-4'}`}
       >
         <div
           ref={resumeRef}
@@ -110,39 +111,41 @@ export function ResumePreview({
           style={{ minHeight: '1056px' }}
         >
           {/* Header Section */}
-          <div className="text-center mb-4">
+          <div className="text-center mb-2">
             <h1 className="text-[28px] font-bold mb-1">
               {displayedResume.name}
             </h1>
-            <div className="flex items-center justify-center text-[13px] leading-none">
+            <div className="contact-info flex items-center justify-center text-[13px] leading-none">
               <div className="flex items-center">
                 {/*<MapPin className="w-3.5 h-3.5 stroke-[1.5]" />*/}
-                <span className="ml-1">{displayedResume.location}</span>
+                <span>{displayedResume.location}</span>
               </div>
               <span className="mx-2">•</span>
               <div className="flex items-center">
                 {/*<Phone className="w-3.5 h-3.5 stroke-[1.5]" />*/}
-                <span className="ml-1">{displayedResume.phone}</span>
+                <span>{displayedResume.phone}</span>
               </div>
               <span className="mx-2">•</span>
               <div className="flex items-center">
                 {/*<Mail className="w-3.5 h-3.5 stroke-[1.5]" />*/}
-                <span className="ml-1">{displayedResume.email}</span>
+                <span>{displayedResume.email}</span>
               </div>
             </div>
           </div>
 
           {/* Professional Experience Section */}
-          <div className="mb-4">
-            <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+          <div className="mb-2">
+            <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
               PROFESSIONAL EXPERIENCE
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {displayedResume.experience.map((exp, index) => (
-                <div key={index} className="relative">
-                  <div className="flex justify-between items-baseline">
+                <div key={index} className="experience-item">
+                  <div className="company-date flex justify-between items-baseline">
                     <div>
-                      <h3 className="font-bold text-[14px]">{exp.title}</h3>
+                      <h3 className="job-title font-bold text-[14px]">
+                        {exp.title}
+                      </h3>
                       <div className="text-[14px]">{exp.company}</div>
                     </div>
                     <div className="text-[14px]">
@@ -169,15 +172,17 @@ export function ResumePreview({
 
           {/* Projects Section */}
           {displayedResume.projects.length > 0 && (
-            <div className="mb-4">
-              <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+            <div className="mb-2">
+              <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
                 PROJECTS
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {displayedResume.projects.map((project, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-baseline">
-                      <h3 className="font-bold text-[14px]">{project.name}</h3>
+                  <div key={index} className="experience-item">
+                    <div className="company-date flex justify-between items-baseline">
+                      <h3 className="job-title font-bold text-[14px]">
+                        {project.name}
+                      </h3>
                       {project.date && (
                         <div className="text-[14px]">{project.date}</div>
                       )}
@@ -199,16 +204,18 @@ export function ResumePreview({
           )}
 
           {/* Education Section */}
-          <div className="mb-4">
-            <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+          <div className="mb-2">
+            <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
               EDUCATION
             </h2>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {displayedResume.education.map((edu, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-baseline">
+                <div key={index} className="experience-item">
+                  <div className="company-date flex justify-between items-baseline">
                     <div>
-                      <div className="font-bold text-[14px]">{edu.school}</div>
+                      <div className="job-title font-bold text-[14px]">
+                        {edu.school}
+                      </div>
                       <div className="text-[14px]">
                         {edu.degree}
                         {edu.major && ` in ${edu.major}`}
@@ -225,10 +232,10 @@ export function ResumePreview({
 
           {/* Skills & Other Section */}
           <div>
-            <h2 className="text-[15px] font-bold border-b border-gray-300 pb-1 mb-3">
+            <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
               SKILLS & OTHER
             </h2>
-            <div className="space-y-1">
+            <div className="skills-list space-y-1">
               {displayedResume.skillCategories?.map((category, index) => (
                 <div key={index} className="text-[14px]">
                   <span className="font-bold">{category.name}:</span>{' '}
