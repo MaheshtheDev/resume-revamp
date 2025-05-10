@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+
+const isProd = process.env.VERCEL;
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +17,10 @@ export async function POST(request: Request) {
 
     // Launch browser
     const browser = await puppeteer.launch({
-      headless: true,
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: isProd ? await chromium.executablePath() : undefined, // Let puppeteer find Chrome locally
+      headless: chromium.headless,
     });
 
     // Create new page
