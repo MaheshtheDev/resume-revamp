@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FilePenLineIcon, Library, User } from 'lucide-react';
+import { Library, User } from 'lucide-react';
 import {
   Sidebar,
   SidebarHeader,
@@ -13,6 +13,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -71,9 +72,15 @@ function LeftNavBar() {
           <SidebarMenuItem className="hover:bg-transparent">
             <SidebarMenuButton
               tooltip="Resume Revamp"
+              className='!p-0'
               onClick={() => router.push('/')}
             >
-              <FilePenLineIcon size={36} />
+              <Image
+                src="/icon-rounded.png"
+                alt="Resume Revamp"
+                width={40}
+                height={40}
+              />
               <h2 className="text-lg font-semibold text-center animate-in">
                 Resume Revamp
               </h2>
