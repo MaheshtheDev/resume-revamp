@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revampResume } from '@/agents/structured-resume';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { resume, message, jobUrl } = await request.json();
