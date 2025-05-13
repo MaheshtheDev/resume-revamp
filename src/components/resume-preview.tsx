@@ -121,11 +121,15 @@ export function ResumePreview({
                 <span>{displayedResume.location}</span>
               </div>
               <span className="mx-2">•</span>
-              <div className="flex items-center">
-                {/*<Phone className="w-3.5 h-3.5 stroke-[1.5]" />*/}
-                <span>{displayedResume.phone}</span>
-              </div>
-              <span className="mx-2">•</span>
+              {displayedResume.phone && (
+                <>
+                  <div className="flex items-center">
+                    {/*<Phone className="w-3.5 h-3.5 stroke-[1.5]" />*/}
+                    <span>{displayedResume.phone}</span>
+                  </div>
+                  <span className="mx-2">•</span>
+                </>
+              )}
               <div className="flex items-center">
                 {/*<Mail className="w-3.5 h-3.5 stroke-[1.5]" />*/}
                 <span>{displayedResume.email}</span>
