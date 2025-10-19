@@ -89,7 +89,7 @@ function LeftNavBar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu className={cn(!open && 'px-2', 'hidden')}>
+        <SidebarMenu className={cn(!open && 'px-2', 'hidden md:block')}>
           {primaryNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton asChild tooltip={item.label}>
@@ -140,7 +140,7 @@ function LeftNavBar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarTrigger />
+        <SidebarTrigger className="md:hidden" />
       </SidebarFooter>
     </Sidebar>
   );

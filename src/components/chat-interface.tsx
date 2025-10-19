@@ -69,7 +69,7 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-col h-full border overflow-hidden bg-white dark:bg-gray-900">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
         {displayMessages.map((message, index) => (
           <div key={index} className="flex items-start gap-2">
             {message.role == 'assistant' ? (
@@ -77,7 +77,7 @@ export function ChatInterface({
             ) : (
               <UserIcon className="size-4 mt-1" />
             )}
-            <div className={`max-w-[90%] font-normal text-sm leading-6`}>
+            <div className={`max-w-[85%] sm:max-w-[90%] font-normal text-sm leading-6`}>
               {message.content}
             </div>
           </div>
@@ -93,15 +93,15 @@ export function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 mt-auto border-t space-y-3">
+      <div className="p-2 sm:p-3 mt-auto border-t space-y-2 sm:space-y-3">
         <div className="relative flex items-center">
           <div className="flex items-center w-full gap-2 bg-gray-50 dark:bg-gray-800 rounded-md px-3 py-2">
             <LinkIcon className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
             <Input
               value={jobUrl}
               onChange={(e) => setJobUrl(e.target.value)}
-              placeholder="Paste job URL you're applying for (optional)"
-              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+              placeholder="Job URL (optional)"
+              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-sm"
               disabled={isProcessing}
             />
           </div>
@@ -114,7 +114,7 @@ export function ChatInterface({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask a follow up..."
-            className="min-h-[80px] max-h-[120px] pr-12 resize-none py-2.5 rounded-md"
+            className="min-h-[60px] sm:min-h-[80px] max-h-[120px] pr-12 resize-none py-2.5 rounded-md text-sm"
             disabled={isProcessing}
           />
 
@@ -125,7 +125,7 @@ export function ChatInterface({
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full w-8 h-8 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="rounded-full w-8 h-8 sm:w-8 sm:h-8 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 touch-manipulation"
                 onClick={handleSendMessage}
                 disabled={!input.trim()}
               >

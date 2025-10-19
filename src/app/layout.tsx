@@ -3,9 +3,11 @@ import './globals.css';
 import { GeistSans } from 'geist/font/sans';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/app-sidebar';
+import { MobileNavigation } from '@/components/mobile-navigation';
 export const metadata: Metadata = {
   title: 'Resume Revamp',
   description: 'Get your Updated Resume in seconds',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
 };
 
 export default function RootLayout({
@@ -18,6 +20,7 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <SidebarProvider defaultOpen={false}>
           <AppSidebar />
+          <MobileNavigation />
           {children}
         </SidebarProvider>
         <script

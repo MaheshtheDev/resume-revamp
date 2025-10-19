@@ -70,21 +70,24 @@ export function ResumePreview({
   return (
     <div className="h-full flex flex-col overflow-y-scroll">
       {!hideControls && (
-        <div className="p-4 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex justify-between items-center">
-          <h2 className="font-semibold dark:text-white">
+        <div className="p-3 sm:p-4 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex justify-between items-center">
+          <h2 className="font-semibold dark:text-white text-sm sm:text-base">
             {showPreviousVersion ? 'Previous Version' : 'Current Version'}
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {previousVersion && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={toggleVersion}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
               >
-                <History className="w-4 h-4" />
-                <span>
+                <History className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">
                   {showPreviousVersion ? 'Show Current' : 'Show Previous'}
+                </span>
+                <span className="sm:hidden">
+                  {showPreviousVersion ? 'Current' : 'Previous'}
                 </span>
               </Button>
             )}
@@ -93,41 +96,46 @@ export function ResumePreview({
               size="sm"
               onClick={handleDownload}
               disabled={isGenerating}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
             >
-              <Download className="w-4 h-4" />
-              <span>{isGenerating ? 'Generating...' : 'Download PDF'}</span>
+              <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">
+                {isGenerating ? 'Generating...' : 'Download PDF'}
+              </span>
+              <span className="sm:hidden">
+                {isGenerating ? 'Generating...' : 'Download'}
+              </span>
             </Button>
           </div>
         </div>
       )}
 
       <div
-        className={`flex-1 overflow-y-auto ${hideControls ? 'pt-10' : 'p-4'}`}
+        className={`flex-1 overflow-y-auto ${hideControls ? 'pt-10' : 'p-2 sm:p-4'}`}
       >
         <div
           ref={resumeRef}
-          className="bg-white mx-auto max-w-[816px] p-8"
+          className="bg-white mx-auto max-w-[816px] px-3 py-4 sm:px-6 sm:py-8 lg:px-8 lg:py-8"
           style={{ minHeight: '1056px' }}
         >
           {/* Header Section */}
           <div className="text-center mb-2">
-            <h1 className="text-[28px] font-bold mb-1">
+            <h1 className="text-xl sm:text-2xl lg:text-[28px] font-bold mb-1">
               {displayedResume.name}
             </h1>
-            <div className="contact-info flex items-center justify-center text-[13px] leading-none">
+            <div className="contact-info flex flex-col sm:flex-row items-center justify-center text-xs sm:text-[13px] leading-none gap-1 sm:gap-0">
               <div className="flex items-center">
                 {/*<MapPin className="w-3.5 h-3.5 stroke-[1.5]" />*/}
                 <span>{displayedResume.location}</span>
               </div>
-              <span className="mx-2">•</span>
+              <span className="hidden sm:inline mx-2">•</span>
               {displayedResume.phone && (
                 <>
                   <div className="flex items-center">
                     {/*<Phone className="w-3.5 h-3.5 stroke-[1.5]" />*/}
                     <span>{displayedResume.phone}</span>
                   </div>
-                  <span className="mx-2">•</span>
+                  <span className="hidden sm:inline mx-2">•</span>
                 </>
               )}
               <div className="flex items-center">
@@ -139,24 +147,24 @@ export function ResumePreview({
 
           {/* Professional Experience Section */}
           <div className="mb-2">
-            <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
+            <h2 className="section-title text-sm sm:text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
               PROFESSIONAL EXPERIENCE
             </h2>
             <div className="space-y-2">
               {displayedResume.experience.map((exp, index) => (
                 <div key={index} className="experience-item">
-                  <div className="company-date flex justify-between items-baseline">
+                  <div className="company-date flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1">
                     <div>
-                      <h3 className="job-title font-bold text-[14px]">
+                      <h3 className="job-title font-bold text-sm sm:text-[14px]">
                         {exp.title}
                       </h3>
-                      <div className="text-[14px]">{exp.company}</div>
+                      <div className="text-sm sm:text-[14px]">{exp.company}</div>
                     </div>
-                    <div className="text-[14px]">
+                    <div className="text-sm sm:text-[14px] text-gray-600 dark:text-gray-400">
                       {exp.startDate} – {exp.endDate}
                     </div>
                   </div>
-                  <ul className="mt-0.5 space-y-0.5 text-[14px]">
+                  <ul className="mt-0.5 space-y-0.5 text-sm sm:text-[14px]">
                     {exp.description
                       .split('\n')
                       .filter((point) => point.trim())
@@ -177,21 +185,21 @@ export function ResumePreview({
           {/* Projects Section */}
           {displayedResume.projects.length > 0 && (
             <div className="mb-2">
-              <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
+              <h2 className="section-title text-sm sm:text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
                 PROJECTS
               </h2>
               <div className="space-y-1">
                 {displayedResume.projects.map((project, index) => (
                   <div key={index} className="experience-item">
-                    <div className="company-date flex justify-between items-baseline">
-                      <h3 className="job-title font-bold text-[14px]">
+                    <div className="company-date flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1">
+                      <h3 className="job-title font-bold text-sm sm:text-[14px]">
                         {project.name}
                       </h3>
                       {project.date && (
-                        <div className="text-[14px]">{project.date}</div>
+                        <div className="text-sm sm:text-[14px] text-gray-600 dark:text-gray-400">{project.date}</div>
                       )}
                     </div>
-                    <ul className="mt-0.5 text-[14px]">
+                    <ul className="mt-0.5 text-sm sm:text-[14px]">
                       {project.description.split('\n').map((point, idx) => (
                         <li
                           key={idx}
@@ -209,23 +217,23 @@ export function ResumePreview({
 
           {/* Education Section */}
           <div className="mb-2">
-            <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
+            <h2 className="section-title text-sm sm:text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
               EDUCATION
             </h2>
             <div className="space-y-1">
               {displayedResume.education.map((edu, index) => (
                 <div key={index} className="experience-item">
-                  <div className="company-date flex justify-between items-baseline">
+                  <div className="company-date flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1">
                     <div>
-                      <div className="job-title font-bold text-[14px]">
+                      <div className="job-title font-bold text-sm sm:text-[14px]">
                         {edu.school}
                       </div>
-                      <div className="text-[14px]">
+                      <div className="text-sm sm:text-[14px]">
                         {edu.degree}
                         {edu.major && ` in ${edu.major}`}
                       </div>
                     </div>
-                    <div className="text-[14px]">
+                    <div className="text-sm sm:text-[14px] text-gray-600 dark:text-gray-400">
                       {edu.startDate} - {edu.endDate}
                     </div>
                   </div>
@@ -236,12 +244,12 @@ export function ResumePreview({
 
           {/* Skills & Other Section */}
           <div>
-            <h2 className="section-title text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
+            <h2 className="section-title text-sm sm:text-[15px] font-bold border-b border-gray-300 pb-1 mb-1">
               SKILLS & OTHER
             </h2>
             <div className="skills-list space-y-1">
               {displayedResume.skillCategories?.map((category, index) => (
-                <div key={index} className="text-[14px]">
+                <div key={index} className="text-sm sm:text-[14px]">
                   <span className="font-bold">{category.name}:</span>{' '}
                   <span>{category.skills.join(', ')}</span>
                 </div>
