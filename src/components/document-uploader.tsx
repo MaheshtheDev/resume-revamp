@@ -73,15 +73,16 @@ export function DocumentUploader({
       <label
         htmlFor="file-upload"
         className={`
-          relative flex flex-col items-center justify-center w-full h-32
+          relative flex flex-col items-center justify-center w-full h-32 sm:h-36
           border-2 border-dashed rounded-lg
           cursor-pointer
           transition-colors
           overflow-hidden
+          touch-manipulation
           ${
             isProcessing
               ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700'
-              : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+              : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 active:border-gray-500 dark:active:border-gray-500'
           }
         `}
       >
@@ -90,17 +91,17 @@ export function DocumentUploader({
             <div className="animate-loading-pulse w-1/2 h-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
           </div>
         )}
-        <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
+        <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10 px-4">
           <Upload
             className={`w-8 h-8 mb-2 ${isProcessing ? 'text-blue-500 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}
           />
-          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center">
             {isProcessing
               ? 'Processing document...'
-              : 'Click to upload or drag and drop'}
+              : 'Tap to upload or drag and drop'}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Supported formats: DOCX, PDF
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            DOCX, PDF
           </p>
         </div>
         <input

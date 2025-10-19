@@ -80,19 +80,19 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 w-full">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 w-full pt-16 md:pt-0">
       {!extractedContent ? (
-        <div className="flex items-center justify-center dark:bg-gray-800 rounded-lg dark:border-gray-700 flex-col min-h-[80vh] w-full">
+        <div className="flex items-center justify-center dark:bg-gray-800 rounded-lg dark:border-gray-700 flex-col min-h-[80vh] w-full px-4">
           <div className="text-center max-w-md mx-auto">
-            <p className="text-xl font-semibold my-4">
+            <p className="text-lg sm:text-xl font-semibold my-4">
               Upload your resume to craft your Next Job Resume
             </p>
             <DocumentUploader onContentExtracted={handleContentExtracted} />
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 ">
-          <div className="lg:col-span-1">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 h-screen">
+          <div className="lg:col-span-1 h-1/2 lg:h-full border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
             <ChatInterface
               onSendMessage={handleSendMessage}
               messages={messages}
@@ -100,7 +100,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="lg:col-span-2 max-h-svh">
+          <div className="lg:col-span-2 h-1/2 lg:h-full">
             <ResumePreview
               resume={extractedContent}
               previousVersion={previousVersion}
