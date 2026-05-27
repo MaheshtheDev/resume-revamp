@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export async function structuredResume(content: string) {
   const result = await generateObject({
-    model: google('gemini-2.5-flash-lite'),
+    model: 'google/gemini-2.5-flash-lite',
     system: `
     You are a resume parser.
     You will be given a resume and you will need to parse it into a structured format.

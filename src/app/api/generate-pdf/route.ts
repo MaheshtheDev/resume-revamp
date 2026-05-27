@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 
     // Set content with custom styles and wait for Tailwind to load
     await page.setContent(fullHtml, {
-      waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
+      waitUntil: ['load', 'domcontentloaded'] as const,
     });
 
     // Wait for Tailwind to process
